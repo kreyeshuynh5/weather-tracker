@@ -3,6 +3,7 @@ import SearchBar from "../components/SearchBar";
 import WeatherCard from "../components/WeatherCard";
 import FavoritesList from "../components/FavoritesList";
 import { fetchWeather, fetchWeatherByCoords } from "../api";
+import { Button, Stack, Typography } from "@mui/material";
 
 type WeatherData = {
   name: string;
@@ -57,14 +58,22 @@ const Home: React.FC = () => {
   };
 
   return (
-    <div style={{ padding: 20, maxWidth: 900, margin: "auto" }}>
-        <h1>🌤️ Weather Tracker</h1>
-        <SearchBar onSearch={handleSearch} />
-        <button onClick={getLocationWeather}>📍 Use My Location</button>
-        <WeatherCard weather={weather} onFavorite={handleFavorite} />
-        <h2>⭐ Favorite Cities</h2>
-        <FavoritesList favorites={favorites} onSelect={handleSearch} />
+    <Stack sx={{ mb: 2, background: "lightblue" }}>
+    <div style={{ padding: 50, maxWidth: 900, margin: "auto" }}>
+      <Typography variant="h3" pb={3} sx={{ color: "black" }}>
+        🌤️ Weather Tracker
+      </Typography>
+      <SearchBar onSearch={handleSearch} />
+      <Button variant="contained" onClick={getLocationWeather}>
+        📍 Use My Location
+      </Button>
+      <WeatherCard weather={weather} onFavorite={handleFavorite} />
+      <Typography variant="h5" sx={{ color: "black", marginTop: 2 }}>
+        ⭐ Favorite Cities
+      </Typography>
+      <FavoritesList favorites={favorites} onSelect={handleSearch} />
     </div>
+  </Stack>
   );
 };
 

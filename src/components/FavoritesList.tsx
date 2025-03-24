@@ -10,8 +10,8 @@ const FavoritesList: React.FC<FavoritesListProps> = ({ favorites, onSelect }) =>
     <List>
       {favorites.map((city, index) => (
         <ListItem key={index}>
-          <ListItemText primary={city} />
-          <Button variant="outlined" onClick={() => onSelect(city)}>
+          <ListItemText primary={city} sx={{ color: "black" }} />
+          <Button variant="contained" onClick={() => onSelect(city)} >
             View
           </Button>
         </ListItem>

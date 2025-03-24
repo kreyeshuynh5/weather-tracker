@@ -13,17 +13,17 @@ const SearchBar: React.FC<SearchBarProps> = ({ onSearch }) => {
   };
 
   return (
-    <Stack direction="row" spacing={2} sx={{ mb: 2 }}>
-      <TextField
-        label="Enter city name"
-        variant="outlined"
-        fullWidth
-        value={city}
-        onChange={(e) => setCity(e.target.value)}
-      />
-      <Button variant="contained" onClick={handleSearch}>
-        Search
-      </Button>
+    <Stack direction="row" p={1} spacing={2} sx={{ mb: 2 }}>
+        <TextField
+          label="Enter city name"
+          variant="outlined"
+          fullWidth
+          value={city}
+          onChange={(e) => setCity(e.target.value)}
+        />
+        <Button variant="contained" onClick={handleSearch}>
+          Search
+        </Button>
     </Stack>
   );
 };
