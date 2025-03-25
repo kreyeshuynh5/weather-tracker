@@ -25,5 +25,5 @@ To get started with this project, clone the repository and install the dependenc
    npm install
 
 3. **To start the development server and view your app locally:**
-  ```bash
-  npm run dev
+    ```bash
+    npm run dev
