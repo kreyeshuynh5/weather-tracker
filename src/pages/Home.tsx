@@ -3,28 +3,30 @@ import SearchBar from "../components/SearchBar";
 import WeatherCard from "../components/WeatherCard";
 import FavoritesList from "../components/FavoritesList";
 import { fetchWeather, fetchWeatherByCoords } from "../api";
-import { Button, Stack, Typography } from "@mui/material";
-
-type WeatherData = {
-  name: string;
-  sys: { country: string };
-  main: { temp: number };
-  weather: { description: string }[];
-};
+import { Button, CircularProgress, Stack, Typography } from "@mui/material";
+import { AxiosError } from "axios";
+import { WeatherData } from "../types/weatherData";
 
 const Home: React.FC = () => {
   const [weather, setWeather] = useState<WeatherData | null>(null);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [loading, setLoading] = useState<boolean>(false);
   const [favorites, setFavorites] = useState<string[]>(() => {
     const storedFavorites = localStorage.getItem("favorites");
     return storedFavorites ? JSON.parse(storedFavorites) : [];
   });
 
   const handleSearch = async (city: string) => {
+    setErrorMessage(null);
+    setLoading(true);
     try {
       const data = await fetchWeather(city);
       setWeather(data);
-    } catch (error) {
-      console.error("Error fetching weather:", error);
+    } catch (error: unknown) {
+      const axiosError = error as AxiosError<{ message: string }>;
+      setErrorMessage(axiosError.response?.data?.message || "Failed to fetch weather.");
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -35,24 +37,36 @@ const Home: React.FC = () => {
     localStorage.setItem("favorites", JSON.stringify(updatedFavorites));
   };
 
+  const handleDeleteFavorite = (city: string) => {
+    const updatedFavorites = favorites.filter((fav) => fav !== city);
+    setFavorites(updatedFavorites);
+    localStorage.setItem("favorites", JSON.stringify(updatedFavorites));
+  };
+
   const getLocationWeather = () => {
     if (!navigator.geolocation) {
-      console.error("Geolocation is not supported by this browser.");
+      setErrorMessage("Geolocation is not supported by this browser.");
       return;
     }
-
+  
     navigator.geolocation.getCurrentPosition(
       async (position) => {
+        setErrorMessage(null);
         try {
           const { latitude, longitude } = position.coords;
           const data = await fetchWeatherByCoords(latitude, longitude);
           setWeather(data);
-        } catch (error) {
-          console.error("Error fetching location weather:", error);
+        } catch (error: unknown) {
+          const axiosError = error as AxiosError<{ message: string }>;
+          if (axiosError.response?.data?.message) {
+                  setErrorMessage(axiosError.response.data.message);
+          } else {
+            setErrorMessage("Failed to fetch weather by location.");
+          }
         }
       },
       (error) => {
-        console.error("Error getting location:", error.message);
+        setErrorMessage(`Error getting location: ${error.message}`);
       }
     );
   };
@@ -64,14 +78,26 @@ const Home: React.FC = () => {
         🌤️ Weather Tracker
       </Typography>
       <SearchBar onSearch={handleSearch} />
+      {errorMessage && (
+          <Typography variant="body1" sx={{ color: "red", mt: 1 }}>
+            {errorMessage}
+          </Typography>
+        )}
       <Button variant="contained" onClick={getLocationWeather}>
         📍 Use My Location
       </Button>
-      <WeatherCard weather={weather} onFavorite={handleFavorite} />
+      {loading ? (
+          <Stack alignItems="center" justifyContent="center" sx={{ mt: 3 }}>
+            <CircularProgress />
+            <Typography variant="body1" sx={{ mt: 1 }}>Loading weather...</Typography>
+          </Stack>
+        ) : (
+          <WeatherCard weather={weather} onFavorite={handleFavorite} />
+        )}
       <Typography variant="h5" sx={{ color: "black", marginTop: 2 }}>
         ⭐ Favorite Cities
       </Typography>
-      <FavoritesList favorites={favorites} onSelect={handleSearch} />
+      <FavoritesList favorites={favorites} onSelect={handleSearch} onDelete={handleDeleteFavorite} />
     </div>
   </Stack>
   );
